@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="P Club 2026">
+<meta name="theme-color" content="#00838F">
+<title>InvoiceCloud P Club 2026 — Aruba Guide</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body, #root { 
+    min-height: 100vh; 
+    min-height: -webkit-fill-available;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: #F7F8FA;
+  }
+  body { overflow-y: scroll; -webkit-overflow-scrolling: touch; }
+  input { -webkit-appearance: none; appearance: none; }
+  a { -webkit-tap-highlight-color: transparent; }
+  button { -webkit-tap-highlight-color: transparent; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const { useState } = React;
+
+
+
+const T = "#00838F";
+const TL = "#E0F7FA";
+
+const TABS = [
+  { id: "home", label: "Home", icon: "☀" },
+  { id: "schedule", label: "Schedule", icon: "📅" },
+  { id: "dining", label: "Dining", icon: "🍽" },
+  { id: "info", label: "Info", icon: "ℹ" },
+  { id: "pack", label: "Pack", icon: "✓" },
+  { id: "flights", label: "Flights", icon: "✈" },
+  { id: "roster", label: "Roster", icon: "👥" },
+];
+
+const DAYS = [
+  { key: "wed", label: "Wed 8", title: "Wednesday, April 8 — Arrival day" },
+  { key: "thu", label: "Thu 9", title: "Thursday, April 9 — Spa & dine arounds" },
+  { key: "fri", label: "Fri 10", title: "Friday, April 10 — Schooner & free evening" },
+  { key: "sat", label: "Sat 11", title: "Saturday, April 11 — Awards dinner" },
+  { key: "sun", label: "Sun 12", title: "Sunday, April 12 — Departure" },
+];
+
+const SCHEDULE = {
+  wed: [
+    { time: "All day", title: "Arrivals on a flow", detail: "EPIC Aruba greeters at airport with InvoiceCloud signage (white polo, black trousers/skirt). Private transport to Marriott. You've been grouped with others on the same flight." },
+    { time: "4:00 PM", title: "Check-in opens", detail: "If your room isn't ready, front desk will hold bags while you enjoy the property." },
+    { time: "7:00 PM", title: "Welcome reception", detail: "Adult pool at Marriott. Cocktails, buffet dinner, steel pan drummers. Attire: resort chic." },
+    { time: "7:45 PM", title: "Welcome remarks", detail: "Tom & Kevin O'Brien" },
+    { time: "9:30 PM", title: "Event concludes" },
+  ],
+  thu: [
+    { time: "All day", title: "Beach palapa gathering", detail: "3 reserved beach palapas for our group — casual come-and-go hangout. F&B covered by InvoiceCloud (up to $4K). Don't miss it!" },
+    { time: "9:45 AM–3:30 PM", title: "Spa appointments", detail: "Mandara Spa at Marriott Aruba Surf Club (next door). 60-min 'Massage de la Aruba' — traditional Aruban massage with long, gentle strokes for deep relaxation and improved circulation. Arrive 30 min early." },
+    { time: "9:45 AM", title: "Spa slot 1", detail: "Amanda Powers, Tom Powers, Chao Ren, Joseph Bravoco" },
+    { time: "11:00 AM", title: "Spa slot 2", detail: "Patty Melton, Tim Melton, Angela Abbott, Angela Straface" },
+    { time: "1:15 PM", title: "Spa slot 3", detail: "Jessi Marcoff, Dennis Mitchell" },
+    { time: "2:30 PM", title: "Spa slot 4", detail: "Maureen Morris, Kevin Fredrickson, Nick Photos, Katelynn Greatorex, Ray Walsh, Lucia Walsh" },
+    { time: "6:10–7:00 PM", title: "Dine around dinners", detail: "4 restaurants across the island. Check the Dining tab for your assignment, pickup time, and group." },
+  ],
+  fri: [
+    { time: "8:30 AM", title: "Meet in hotel lobby", detail: "Collect towels (must be returned after). Group departs together for Pelican Pier." },
+    { time: "9:00 AM–1:00 PM", title: "Luxury schooner trip", detail: "4-hour sail on a brand new 85ft schooner along Aruba's coastline. Visit three top snorkeling/swimming sites." },
+    { time: "12:00 PM", title: "Lunch onboard", detail: "Served on the schooner during the trip." },
+    { time: "1:00 PM", title: "Return to Pelican Pier", detail: "Walk back to Marriott from the pier." },
+    { time: "Evening", title: "Free night", detail: "Plan your own dinner with your guest or other attendees. Your $500 F&B credit works at all onsite restaurants. See the free time ideas under the Info > Aruba tab for inspiration." },
+  ],
+  sat: [
+    { time: "Daytime", title: "Free day", detail: "Beach, pool, explore the island, or just relax." },
+    { time: "10:00 AM–12:00 PM", title: "Optional pickleball", detail: "Marriott Aruba Surf Club courts (next door). Drop in whenever — casual and fun." },
+    { time: "6:30 PM", title: "Awards dinner begins", detail: "BLT Steakhouse patio at the neighboring Ritz Carlton. Cocktails with live guitar. Attire: resort chic." },
+    { time: "7:00–7:15 PM", title: "Awards presentation", detail: "Tom opens, then Maureen, Ray, and Mark present team awards." },
+    { time: "7:15–9:30 PM", title: "Dinner, dessert & networking" },
+  ],
+  sun: [
+    { time: "12:00 PM", title: "Hotel checkout", detail: "Please have all items removed from your room. Front desk can hold bags for later departures." },
+    { time: "All day", title: "Departures on a flow", detail: "Ground transport grouped by flight time. Pickup = 3 hours before your flight. Times will be emailed and posted in #2026-pclub Slack. Please be on time — others may be waiting." },
+  ],
+};
+
+const RESTAURANTS = [
+  {
+    name: "Casa Nonna",
+    cuisine: "Italian — at the Ritz Carlton",
+    time: "6:45 PM",
+    transport: "Walk next door to Ritz Carlton — no car needed",
+    transportType: "walk",
+    url: "https://www.casanonna.com/location/casa-nonna-aruba/",
+    desc: "Traditional Roman and Tuscan fare — scratch pastas, charcuterie, and seafood in an elegant setting with live music. Known for tableside cocktail service (Bellinis, Negronis) and an all-Italian wine list. Try the lobster ravioli or shrimp scampi.",
+    guests: ["Maureen Morris", "Kevin Fredrickson", "Brad Whittle", "Thia Whittle", "John Prodan", "Ashley DiMaggio Ruiz", "Gretchen Schmitt", "Robert Schmitt", "Ryan Quinn", "Olivia Scannell"],
+  },
+  {
+    name: "Wilhelmina",
+    cuisine: "International with Caribbean flair — Oranjestad",
+    time: "6:30 PM",
+    transport: "Lobby pickup at 6:10 PM",
+    transportType: "car",
+    url: "https://www.wilhelminaaruba.com",
+    desc: "Widely considered the best restaurant on the island. A hidden speakeasy city garden in downtown Oranjestad with creative plates — Certified Black Angus steaks, fresh seafood, homemade pasta, and Caribbean rock lobster. The braised short rib ravioli with truffle is unforgettable.",
+    guests: ["Jessi Marcoff", "Dennis Mitchell", "Patty Melton", "Tim Melton", "Mark McNamara", "Brian McCormick", "Vince Pegurri", "Mariana Silva", "Rich Plese", "Gennifer Gilbert", "Katie Johnson", "Julia Svoboda"],
+  },
+  {
+    name: "Papiamento",
+    cuisine: "Caribbean seafood & meats — historic cunucu house",
+    time: "7:00 PM",
+    transport: "Lobby pickup at 6:40 PM",
+    transportType: "car",
+    url: "https://papiamentoaruba.com/",
+    desc: "An Aruba institution since 1983. Dine poolside under twinkling lights at a 135-year-old manor filled with Dutch antiques. Family-run by the Ellis family. Famous for Keshi Yena (stuffed Gouda), seafood hot stone platters, and a wine cellar with 1,800+ bottles.",
+    guests: ["Tom Powers", "Amanda Powers", "Michaela Meyer", "Mike Meyer", "Jason Stinnett", "Lisa Stinnett", "Amanda Eleuteri", "Parker Hoy", "Angela Abbott", "Angela Straface", "Chao Ren", "Joseph Bravoco"],
+  },
+  {
+    name: "Barefoot",
+    cuisine: "Seafood & grills — beachfront, toes in the sand",
+    time: "7:00 PM",
+    transport: "Lobby pickup at 6:30 PM",
+    transportType: "car",
+    url: "https://barefootaruba.com/",
+    desc: "Fine dining with your feet in the sand. Tables right on the beach with ocean sounds and sunset views. Known for beautifully prepared seafood — grouper, snapper, and the signature beef carpaccio. Cocktail pick: the Barefoot Delight or a fresh Flirtini.",
+    guests: ["Kevin O'Brien", "Cristina O'Brien", "Ray Walsh", "Lucia Walsh", "Kyle Barglind", "Emily Barglind", "Nick Photos", "Katelynn Greatorex", "Tim Fugger", "Rebecca Fugger", "Matt Straw", "Violet Kiekbusch"],
+  },
+];
+
+const SCHOONER_ATTENDEES = "Kyle, Emily, Amanda, Parker, Tim F, Rebecca, Shaw, Kelly, Katie, Julia, Jessi, Dennis, Brian, Michaela, Michael, Maureen, Kevin, Kevin, Cristina, Vince, Mariana, Rich, Gennifer, John, Ashley, Jason, Lisa, Matt, Violet, Brad, Thia, Ryan, Olivia";
+
+const FAQ = [
+  { q: "What's \"resort chic\"?", a: "Think elevated casual — linen shirts, nice shorts or pants, sundresses, dressy sandals. A step up from the pool but not full formal. You'll need this for all three evening events (Welcome Reception, Dine Arounds, Awards Dinner)." },
+  { q: "Do I need to bring cash?", a: "Not really. Credit cards are accepted everywhere in Aruba. US dollars are also accepted island-wide if you prefer cash. Resort charges go to your room." },
+  { q: "What if my flight changes?", a: "Contact EPIC DMC (Tara Alwani) directly at +297-593-2205 via WhatsApp or email tara@epicdmc.com." },
+  { q: "Can I use my phone in Aruba?", a: "Yes! Most US carriers (Verizon, AT&T, T-Mobile) work in Aruba. Check with your provider about international plan options before you leave. WiFi is available at the resort in common areas." },
+  { q: "Do I need a power adapter?", a: "No! Aruba uses the same electrical outlets as the US (Type A/B, 120V). Your chargers will work without any adapter." },
+  { q: "Is the tap water safe?", a: "Yes — Aruba desalinates its water supply and it's among the purest in the Caribbean. Totally safe to drink from the tap." },
+  { q: "How do I track my $500 F&B credit?", a: "Charge everything to your room. You can check your room balance at the front desk anytime. Anything beyond $500 goes to the credit card you provided at check-in." },
+  { q: "What if I need to cancel my spa appointment?", a: "Let Michaela Meyer know as soon as possible." },
+  { q: "What about the casino?", a: "The 24-hour Stellaris Casino is right in the resort — smoke-free, with 17 table games (blackjack, craps, roulette, poker), slots, and sports betting. Sign up for the Preferred Player's Club to earn rewards toward your room charges. Casino charges are NOT covered by the F&B credit." },
+];
+
+const FREE_TIME = [
+  { name: "Eagle Beach", desc: "Consistently ranked one of the world's best beaches. All Aruba beaches are public!" },
+  { name: "Arikok National Park", desc: "Rugged desert landscape, natural pool, caves — rent a 4x4 to explore." },
+  { name: "California Lighthouse", desc: "360° panoramic views from Aruba's tallest structure. Best at sunset ($5 admission)." },
+  { name: "Downtown Oranjestad", desc: "Colorful Dutch colonial architecture, shopping, and local restaurants." },
+  { name: "Boca Catalina snorkeling", desc: "Amazing reef right from shore — no boat needed." },
+  { name: "Flamingo Beach", desc: "Renaissance Island's famous flamingo photo ops. Book in advance!" },
+  { name: "Sunset sailing", desc: "Book a catamaran for a memorable Caribbean sunset cruise." },
+  { name: "Hooiberg (Haystack Mountain)", desc: "587 steps to the top for views all the way to Venezuela on clear days." },
+];
+
+const CHECKLIST_DATA = {
+  documents: {
+    title: "Documents & admin",
+    items: [
+      "Valid passport — for you AND your guest (check expiration!)",
+      "Complete Aruba ED Card at edcardaruba.aw ($20 fee — expense it) ★",
+      "Download the MPC app — iPhone or Android (for Global Entry lines at Aruba airport) ★",
+      "Download WhatsApp (for ground transport contact: Tara at +297-593-2205) ★",
+      "Check cell phone international plan with your carrier",
+      "Confirm flight details and download airline app",
+      "Join #2026-pclub Slack channel",
+      "Flight confirmation / boarding passes",
+      "Credit card for hotel check-in incidentals",
+    ],
+  },
+  clothing: {
+    title: "Clothing",
+    items: [
+      "Resort chic outfits for 3 evening events (Welcome Reception, Dine Around, Awards Dinner)",
+      "Swimsuits (multiple — you'll live in them)",
+      "Cover-ups and comfortable daywear",
+      "Sandals / flip flops",
+      "Comfortable walking shoes",
+      "Nice shoes for evening dinners",
+      "Light jacket or wrap (indoor AC can be cold)",
+    ],
+  },
+  sun: {
+    title: "Beach & sun",
+    items: [
+      "Reef-safe sunscreen SPF 30+ (the Aruba sun is intense — reapply every 2 hrs)",
+      "UV-blocking sunglasses",
+      "Hat or visor",
+      "Aloe vera / after-sun lotion",
+    ],
+  },
+  optional: {
+    title: "Nice to have",
+    items: [
+      "Waterproof phone pouch (for schooner trip)",
+      "GoPro / underwater camera",
+      "Book or Kindle for pool time",
+      "Pickleball paddle (or use resort's)",
+      "Motion sickness medication (for the boat)",
+      "Snorkel gear (provided on schooner, but bring your own for beach days)",
+      "Any medications or prescriptions (Aruba pharmacies may not carry yours)",
+      "Phone chargers (US plugs work in Aruba — same outlets!)",
+      "Portable battery pack",
+    ],
+  },
+};
+
+function Badge({ type, children }) {
+  const c = { info: { bg: "#E3F2FD", c: "#1565C0" }, warn: { bg: "#FFF3E0", c: "#E65100" }, danger: { bg: "#FFEBEE", c: "#C62828" }, success: { bg: "#E8F5E9", c: "#2E7D32" }, teal: { bg: TL, c: T } }[type] || { bg: TL, c: T };
+  return <span style={{ display: "inline-block", fontSize: 11, padding: "3px 10px", borderRadius: 6, background: c.bg, color: c.c, fontWeight: 600 }}>{children}</span>;
+}
+
+function Alert({ type, children }) {
+  const c = { info: { bg: "#E3F2FD", c: "#1565C0", b: "#90CAF9" }, warn: { bg: "#FFF3E0", c: "#E65100", b: "#FFCC80" }, danger: { bg: "#FFEBEE", c: "#C62828", b: "#EF9A9A" } }[type] || { bg: "#E3F2FD", c: "#1565C0", b: "#90CAF9" };
+  return <div style={{ padding: "12px 14px", borderRadius: 10, background: c.bg, color: c.c, fontSize: 14, lineHeight: 1.5, marginBottom: 12, borderLeft: `3px solid ${c.b}` }}>{children}</div>;
+}
+
+function Card({ children, style }) {
+  return <div style={{ background: "white", borderRadius: 14, padding: "16px 18px", marginBottom: 12, boxShadow: "0 1px 3px rgba(0,0,0,0.06)", ...style }}>{children}</div>;
+}
+
+function Metric({ label, value, small }) {
+  return (
+    <div style={{ background: "#F7F8FA", borderRadius: 10, padding: "12px 14px", flex: "1 1 45%", minWidth: 0 }}>
+      <div style={{ fontSize: 11, color: "#8A8F98", textTransform: "uppercase", letterSpacing: 0.5 }}>{label}</div>
+      <div style={{ fontSize: small ? 14 : 20, fontWeight: 600, marginTop: 2, color: "#1A1D23" }}>{value}</div>
+    </div>
+  );
+}
+
+function TLItem({ time, title, detail }) {
+  return (
+    <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 12 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", border: `2.5px solid ${T}`, background: "white", flexShrink: 0, marginTop: 4 }} />
+        <div style={{ width: 2, flex: 1, background: "#E0E3E8", marginTop: 4 }} />
+      </div>
+      <div style={{ flex: 1, paddingBottom: 4 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: T }}>{time}</div>
+        <div style={{ fontSize: 15, fontWeight: 500, marginTop: 2 }}>{title}</div>
+        {detail && <div style={{ fontSize: 13, color: "#6B7280", marginTop: 3, lineHeight: 1.5 }}>{detail}</div>}
+      </div>
+    </div>
+  );
+}
+
+function PillNav({ items, active, onSelect }) {
+  return (
+    <div style={{ display: "flex", gap: 6, marginBottom: 18, overflowX: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 4 }}>
+      {items.map(i => (
+        <button key={i.key} onClick={() => onSelect(i.key)} style={{
+          padding: "8px 14px", borderRadius: 20, border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0,
+          background: active === i.key ? T : "#F0F1F3", color: active === i.key ? "white" : "#6B7280",
+        }}>{i.label}</button>
+      ))}
+    </div>
+  );
+}
+
+function Expandable({ title, children, defaultOpen }) {
+  const [open, setOpen] = useState(defaultOpen || false);
+  return (
+    <div style={{ borderBottom: "1px solid #F0F1F3", paddingBottom: open ? 12 : 0, marginBottom: 8 }}>
+      <div onClick={() => setOpen(!open)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
+        <span style={{ fontSize: 15, fontWeight: 500, flex: 1, paddingRight: 8 }}>{title}</span>
+        <span style={{ fontSize: 18, color: "#9CA3AF", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s", flexShrink: 0 }}>▾</span>
+      </div>
+      {open && <div style={{ paddingBottom: 4 }}>{children}</div>}
+    </div>
+  );
+}
+
+function Link({ href, children }) {
+  return <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: T, fontWeight: 600, textDecoration: "underline", textUnderlineOffset: 2 }}>{children}</a>;
+}
+
+function LinkButton({ href, children }) {
+  return <a href={href} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", fontSize: 13, color: T, fontWeight: 600, textDecoration: "none", padding: "6px 12px", border: `1px solid ${T}`, borderRadius: 8, marginTop: 8 }}>{children} ↗</a>;
+}
+
+function HomeTab() {
+  return (
+    <div>
+      <div style={{ textAlign: "center", padding: "24px 20px 16px" }}>
+        <div style={{ fontSize: 13, color: T, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>InvoiceCloud</div>
+        <div style={{ fontSize: 24, fontWeight: 700, marginTop: 4, color: "#1A1D23" }}>President's Club 2026</div>
+        <a href="https://www.marriott.com/en-us/hotels/auaar-aruba-marriott-resort-and-stellaris-casino/overview/" target="_blank" rel="noopener noreferrer" style={{ fontSize: 15, color: "#6B7280", marginTop: 4, textDecoration: "underline", textUnderlineOffset: 2, display: "block" }}>Aruba Marriott Resort & Stellaris Casino</a>
+        <div style={{ fontSize: 17, fontWeight: 600, color: T, marginTop: 8 }}>April 8 – 12, 2026</div>
+      </div>
+      <div style={{ padding: "0 16px" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
+          <Metric label="Weather" value="80–88°F" />
+          <Metric label="F&B credit" value="$500/ea" />
+          <Metric label="Duration" value="4 nights" />
+          <Metric label="Sunshine" value="8–9 hrs" />
+        </div>
+        <Alert type="info">Slack channel for all onsite needs: <strong>#2026-pclub</strong></Alert>
+        <Card>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>What's included</div>
+          <div style={{ fontSize: 14, color: "#374151", lineHeight: 1.7 }}>
+            4 nights at Aruba Marriott (Signature Room) · $500/person F&B credit · Airport ground transport (arrival & departure) · Welcome reception · Dine around dinner · Luxury schooner trip · Spa treatment · Awards dinner at BLT Steakhouse · Optional pickleball
+          </div>
+        </Card>
+        <Card>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 10 }}>Joint events at a glance</div>
+          {[
+            { day: "Wed 8", event: "Welcome reception", where: "Adult pool, Marriott", time: "7:00 PM" },
+            { day: "Thu 9", event: "Spa appointments", where: "Mandara Spa, Surf Club", time: "9:45 AM–3:30 PM" },
+            { day: "Thu 9", event: "Beach palapa gathering", where: "Reserved palapas, Palm Beach", time: "All day" },
+            { day: "Thu 9", event: "Dine arounds", where: "4 restaurants", time: "6:30–7:00 PM" },
+            { day: "Fri 10", event: "Luxury schooner trip", where: "Pelican Pier", time: "9:00 AM–1:00 PM" },
+            { day: "Fri 10", event: "Free evening", where: "Your choice", time: "—" },
+            { day: "Sat 11", event: "Optional pickleball", where: "Surf Club courts", time: "10:00 AM–12:00 PM" },
+            { day: "Sat 11", event: "Awards dinner", where: "BLT @ Ritz Carlton", time: "6:30 PM" },
+          ].map((e, i) => (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderTop: i ? "1px solid #F0F1F3" : "none" }}>
+              <div><div style={{ fontSize: 14, fontWeight: 500 }}>{e.event}</div><div style={{ fontSize: 12, color: "#9CA3AF" }}>{e.where}</div></div>
+              <div style={{ textAlign: "right" }}><div style={{ fontSize: 13, fontWeight: 600, color: T }}>{e.day}</div><div style={{ fontSize: 12, color: "#9CA3AF" }}>{e.time}</div></div>
+            </div>
+          ))}
+        </Card>
+        <Card>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 10 }}>Quick links</div>
+          {[
+            { label: "Aruba ED Card (required)", url: "https://edcardaruba.aw/", note: "Complete within 7 days of departure" },
+            { label: "Aruba Marriott Resort", url: "https://www.marriott.com/en-us/hotels/auaar-aruba-marriott-resort-and-stellaris-casino/overview/" },
+            { label: "MPC App — iPhone", url: "https://apps.apple.com/us/app/mobile-passport-control/id1520656722", note: "Speeds up U.S. customs in Aruba" },
+            { label: "MPC App — Android", url: "https://play.google.com/store/apps/details?id=gov.dhs.cbp.pspd.mpc" },
+            { label: "WhatsApp (download)", url: "https://www.whatsapp.com/download", note: "For ground transport contact" },
+            { label: "Mandara Spa", url: "https://www.mandaraspa.com/locations/aruba-surf-club" },
+            { label: "Stellaris Casino", url: "https://www.stellariscasino.com/" },
+          ].map((l, i) => (
+            <a key={i} href={l.url} target="_blank" rel="noopener noreferrer" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderTop: i ? "1px solid #F0F1F3" : "none", textDecoration: "none", WebkitTapHighlightColor: "transparent" }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 500, color: T }}>{l.label}</div>
+                {l.note && <div style={{ fontSize: 12, color: "#9CA3AF" }}>{l.note}</div>}
+              </div>
+              <span style={{ fontSize: 16, color: "#9CA3AF", flexShrink: 0, marginLeft: 8 }}>↗</span>
+            </a>
+          ))}
+        </Card>
+
+        <Card>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Key contacts</div>
+          {[
+            { name: "Michaela Meyer", role: "Event lead", phone: "401-932-5982", init: "MM" },
+            { name: "Tara Alwani", role: "Ground transport (EPIC Aruba)", phone: "+297-593-2205", init: "TA", sub: "WhatsApp · tara@epicdmc.com" },
+          ].map((c, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderTop: i ? "1px solid #F0F1F3" : "none" }}>
+              <div style={{ width: 40, height: 40, borderRadius: "50%", background: TL, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 600, color: T, flexShrink: 0 }}>{c.init}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 500 }}>{c.name}</div>
+                <div style={{ fontSize: 12, color: "#9CA3AF" }}>{c.role}</div>
+                {c.sub && <div style={{ fontSize: 11, color: "#9CA3AF" }}>{c.sub}</div>}
+              </div>
+              <a href={`tel:${c.phone.replace(/[^+\d]/g, "")}`} style={{ fontSize: 12, color: T, textDecoration: "none", flexShrink: 0 }}>{c.phone}</a>
+            </div>
+          ))}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderTop: "1px solid #F0F1F3" }}>
+            <div style={{ width: 40, height: 40, borderRadius: "50%", background: TL, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 600, color: T, flexShrink: 0 }}>#</div>
+            <div style={{ flex: 1 }}><div style={{ fontSize: 14, fontWeight: 500 }}>#2026-pclub</div><div style={{ fontSize: 12, color: "#9CA3AF" }}>Slack — all questions & onsite needs</div></div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function ScheduleTab() {
+  const [day, setDay] = useState("wed");
+  const current = DAYS.find(d => d.key === day);
+  return (
+    <div style={{ padding: "20px 16px" }}>
+      <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 14 }}>Schedule</div>
+      <PillNav items={DAYS} active={day} onSelect={setDay} />
+      <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 14, color: "#374151" }}>{current.title}</div>
+      {SCHEDULE[day].map((item, i) => <TLItem key={i} {...item} />)}
+      {day === "sun" && <Alert type="warn">Aruba airport lines are notoriously long. Arrive 3 hours before your flight — you'll clear both Aruba emigration AND U.S. customs before boarding.</Alert>}
+    </div>
+  );
+}
+
+function DiningTab() {
+  const [search, setSearch] = useState("");
+  const q = search.toLowerCase();
+  return (
+    <div style={{ padding: "20px 16px" }}>
+      <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Thursday dine arounds</div>
+      <div style={{ fontSize: 13, color: "#9CA3AF", marginBottom: 14 }}>All reservations under Michaela Meyer</div>
+      <input type="text" placeholder="Search your name..." value={search} onChange={e => setSearch(e.target.value)}
+        style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: "1.5px solid #E0E3E8", fontSize: 16, marginBottom: 16, background: "white", boxSizing: "border-box", outline: "none" }} />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 12 }}>
+      {RESTAURANTS.filter(r => !q || r.guests.some(g => g.toLowerCase().includes(q)) || r.name.toLowerCase().includes(q)).map((r, i) => {
+        const isMatch = q && r.guests.some(g => g.toLowerCase().includes(q));
+        return (
+          <Card key={i} style={isMatch ? { border: `2px solid ${T}`, boxShadow: `0 0 0 3px ${T}22` } : {}}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 6 }}>
+              <div><div style={{ fontSize: 17, fontWeight: 600 }}>{r.name}</div><div style={{ fontSize: 13, color: "#9CA3AF" }}>{r.cuisine}</div></div>
+              <Badge type={r.transportType === "walk" ? "success" : "teal"}>{r.transportType === "walk" ? "walk over" : "transport"}</Badge>
+            </div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: T, marginBottom: 4 }}>{r.time}</div>
+            <div style={{ fontSize: 13, color: "#6B7280", marginBottom: 8 }}>{r.transport}</div>
+            <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.6, marginBottom: 10, padding: "8px 12px", background: "#F7F8FA", borderRadius: 8 }}>{r.desc}</div>
+            <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", fontSize: 13, color: T, fontWeight: 600, textDecoration: "none", marginBottom: 10, padding: "6px 12px", border: `1px solid ${T}`, borderRadius: 8 }}>View menu & website ↗</a>
+            <div style={{ fontSize: 13, lineHeight: 1.7 }}>
+              {r.guests.map((g, j) => (
+                <span key={j}>
+                  <span style={q && g.toLowerCase().includes(q) ? { background: "#FFF176", padding: "1px 4px", borderRadius: 4, fontWeight: 600 } : {}}>{g}</span>
+                  {j < r.guests.length - 1 && <span style={{ color: "#D1D5DB" }}> · </span>}
+                </span>
+              ))}
+            </div>
+          </Card>
+        );
+      })}
+      </div>
+    </div>
+  );
+}
+
+function InfoTab() {
+  const [section, setSection] = useState("travel");
+  const secs = [{ key: "travel", label: "Travel" }, { key: "hotel", label: "Hotel" }, { key: "activities", label: "Activities" }, { key: "aruba", label: "Aruba" }, { key: "faq", label: "FAQ" }];
+
+  return (
+    <div style={{ padding: "20px 16px" }}>
+      <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 14 }}>Info & details</div>
+      <PillNav items={secs} active={section} onSelect={setSection} />
+
+      {section === "travel" && <>
+        <Alert type="danger">You MUST have a valid passport. It is your responsibility to ensure both you and your guest have valid passports. InvoiceCloud is not responsible for any flight disruptions from passport issues.</Alert>
+        <Card>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Aruba ED card — required</div>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, margin: 0 }}>All travelers must complete the <Link href="https://edcardaruba.aw/">Aruba ED card</Link> online and pay the $20 fee before departure. You can expense the cost. You must show it at the airport before departure AND upon arrival in Aruba. Complete it within 7 days of your departure date.</p>
+          <LinkButton href="https://edcardaruba.aw/">Complete your ED card</LinkButton>
+        </Card>
+        <Card>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Arriving in Aruba</div>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, margin: 0 }}>After exiting arrivals, look for EPIC Aruba greeters wearing a white uniformed polo and black trousers/skirt, holding InvoiceCloud signage. They'll guide you to private transport. You've been grouped with others on the same flight.</p>
+          <p style={{ fontSize: 13, color: "#6B7280", lineHeight: 1.6, marginTop: 8 }}>Day-of flight changes? Contact Tara Alwani: +297-593-2205 (WhatsApp) or tara@epicdmc.com</p>
+        </Card>
+        <Card>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 10 }}>Departing Aruba — read carefully</div>
+          <Alert type="warn">U.S. customs clearance happens IN Aruba — not back home. This adds significant time. Arrive 3 hours before your flight. They mean it.</Alert>
+          {[
+            { s: "1", t: "Check in with your airline" },
+            { s: "2", t: "Aruba emigration — scan passport at machines or see an officer. When gates open, you're cleared to leave." },
+            { s: "3", t: "Security checkpoint — NO TSA Pre-Check. Shoes off, laptops out." },
+            { s: "4", t: "U.S. Customs & Border Protection — Global Entry holders: separate line inside the door to the right." },
+            { s: "5", t: "Proceed directly to your gate in secure departures area." },
+          ].map((s, i) => (
+            <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: "8px 0", borderTop: i ? "1px solid #F0F1F3" : "none" }}>
+              <div style={{ width: 28, height: 28, borderRadius: "50%", background: T, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{s.s}</div>
+              <div style={{ fontSize: 14, lineHeight: 1.5, paddingTop: 3 }}>{s.t}</div>
+            </div>
+          ))}
+          <Alert type="info">Download the <Link href="https://www.cbp.gov/travel/us-citizens/mobile-passport-control">MPC app</Link> (<Link href="https://apps.apple.com/us/app/mobile-passport-control/id1520656722">iPhone</Link> · <Link href="https://play.google.com/store/apps/details?id=gov.dhs.cbp.pspd.mpc">Android</Link>) to join Global Entry lines even without a membership.</Alert>
+        </Card>
+        <Card>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Return ground transport</div>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, margin: 0 }}>You'll be grouped with other attendees based on departure flight times. Pickup times are based on needing to be at the airport 3 hours before your flight. Times will be emailed and bookmarked in #2026-pclub Slack. Please be on time — others may be waiting.</p>
+        </Card>
+      </>}
+
+      {section === "hotel" && <>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
+          <Metric label="Check-in" value="4:00 PM" />
+          <Metric label="Check-out" value="12:00 PM" />
+          <Metric label="Room type" value="Signature" small />
+          <Metric label="F&B credit" value="$500/ea" />
+        </div>
+        <Card>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Room details</div>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, margin: 0 }}>All attendees are booked into Signature rooms with 1 King or 2 Queen beds. King bed requests have been made based on your guest, but are not guaranteed. The resort completed a multi-million dollar renovation in late 2025 — every room features a contemporary coastal design with sand-and-sea-glass tones, floor-to-ceiling windows, and the largest hotel balconies in Aruba.</p>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, marginTop: 8 }}>Rooms include: private balcony, dual-sink bathroom, Aveda bath amenities, bathrobes, flat-screen TV, mini fridge, and coffee maker. A credit card is required at check-in for incidentals, any additional nights booked outside the event, and charges beyond the F&B credit.</p>
+        </Card>
+        <Card>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>$500 F&B credit — where it works</div>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, margin: "0 0 4px" }}>Charge items to your room when signing the bill — it's automatically applied. Keep track of your spending!</p>
+          <div style={{ fontSize: 14, lineHeight: 1.8, marginTop: 10 }}>
+            <div style={{ fontWeight: 600, color: T, marginBottom: 4 }}>Marriott Resort</div>
+            <div style={{ color: "#374151" }}>Mercat (breakfast/lunch/dinner, Mediterranean) · Atardi (dinner, Caribbean sunsets) · Ruth's Chris (dinner, steakhouse) · Lobby Bar (drinks & sushi) · Gelato Co · Waves Bar & Grill (pool/lunch) · Starbucks · H2O Adult Pool Bar · Room Service</div>
+            <div style={{ fontWeight: 600, color: T, marginTop: 10, marginBottom: 4 }}>Marriott Ocean Club</div>
+            <div style={{ color: "#374151" }}>Antilla Beach Bar · Campeones Cantina · Malmok Bar & Grill</div>
+            <div style={{ fontWeight: 600, color: T, marginTop: 10, marginBottom: 4 }}>Marriott Surf Club</div>
+            <div style={{ color: "#374151" }}>Captain's Galley Pool Bar · Flip Flop Beach Bar · Seaworthy Pool Bar</div>
+          </div>
+        </Card>
+        <Alert type="danger"><strong>NOT covered:</strong> Casino charges, gift shop purchases, anything offsite, additional excursions outside pre-planned events, and any charges beyond $500.</Alert>
+        <Card>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Resort amenities</div>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, margin: 0 }}>Brand new rooms (renovated late 2025) · Multiple pools including adults-only H2Oasis with cabanas & swim-up bar · Direct beachfront on Palm Beach with pool/beachside service · 24-hr Stellaris Casino (Aruba's largest — 17 gaming tables, slots, sports betting, Lounge 101 for live entertainment) · Mandara Spa (Balinese-style, at adjacent Surf Club) · 7 onsite restaurants + Ocean/Surf Club dining · 24-hr fitness center with yoga classes · Tennis courts · Adjacent golf course · Free parking · Free Wi-Fi in common areas · Gift shop · Starbucks</p>
+        </Card>
+        <Card style={{ background: TL }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: T, marginBottom: 4 }}>Casino tip</div>
+          <p style={{ fontSize: 14, color: "#004D54", lineHeight: 1.6, margin: 0 }}>Sign up for the Preferred Player's Club at Stellaris Casino — hotel guests earn points while playing that can be redeemed toward room or food charges. The casino is smoke-free!</p>
+        </Card>
+      </>}
+
+      {section === "activities" && <>
+        <Card>
+          <Badge type="teal">Thursday, April 9</Badge>
+          <div style={{ fontSize: 17, fontWeight: 600, marginTop: 8 }}>Mandara Spa</div>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, marginTop: 6 }}>60-minute "Massage de la Aruba" at the <Link href="https://www.mandaraspa.com/locations/aruba-surf-club">Mandara Spa</Link> at the Marriott Aruba Surf Club (right next door). This is the traditional massage of Aruba focusing on balancing body, mind, and spirit with long, gentle strokes that improve circulation.</p>
+          <Alert type="warn">Arrive 30 minutes before your appointment. To cancel, contact Michaela.</Alert>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>Appointment slots:</div>
+          {[
+            { time: "9:45 AM", names: "Amanda Powers, Tom Powers, Chao Ren, Joseph Bravoco" },
+            { time: "11:00 AM", names: "Patty Melton, Tim Melton, Angela Abbott, Angela Straface" },
+            { time: "1:15 PM", names: "Jessi Marcoff, Dennis Mitchell" },
+            { time: "2:30 PM", names: "Maureen Morris, Kevin Fredrickson, Nick Photos, Katelynn Greatorex, Ray Walsh, Lucia Walsh" },
+          ].map((s, i) => (
+            <div key={i} style={{ display: "flex", gap: 10, padding: "8px 0", borderTop: i ? "1px solid #F0F1F3" : "none" }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: T, minWidth: 70 }}>{s.time}</div>
+              <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.5 }}>{s.names}</div>
+            </div>
+          ))}
+        </Card>
+        <Card style={{ border: `1.5px solid ${T}22`, background: "#F0FAFB" }}>
+          <Badge type="teal">Thursday, April 9</Badge>
+          <div style={{ fontSize: 17, fontWeight: 600, marginTop: 8 }}>Special daytime gathering</div>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, marginTop: 6 }}>This is one of the highlights of the trip — three reserved beach palapas right on Palm Beach, set aside exclusively for our President's Club group. Think of it as our home base for the day: a casual, come-and-go beach hangout where you can eat, drink, and relax together between spa appointments and before the dine arounds that evening.</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, margin: "10px 0" }}>
+            <Metric label="Palapas" value="3 reserved" small />
+            <Metric label="F&B covered" value="Up to $4K" small />
+          </div>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6 }}>InvoiceCloud is covering food & beverages up to $4,000 total — so come hungry and thirsty. This is separate from your personal $500 F&B credit. Order from the beach/pool service and enjoy.</p>
+          <div style={{ background: TL, borderRadius: 8, padding: "10px 14px", marginTop: 10 }}>
+            <p style={{ fontSize: 14, color: T, lineHeight: 1.5, margin: 0, fontWeight: 500 }}>This is your chance to hang out with the whole crew outside of the planned events — swap stories, meet everyone's guests, and soak up the Aruba sun together. Don't miss it!</p>
+          </div>
+        </Card>
+        <Card>
+          <Badge type="teal">Friday, April 10</Badge>
+          <div style={{ fontSize: 17, fontWeight: 600, marginTop: 8 }}>Luxury schooner trip</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, margin: "10px 0" }}>
+            <Metric label="Time" value="9 AM – 1 PM" small />
+            <Metric label="Meet" value="Lobby 8:30 AM" small />
+          </div>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, margin: "0 0 8px" }}>Set sail on a brand new 85ft schooner cruising along Aruba's picturesque coastline. Visit three of the island's most popular swimming and snorkeling sites.</p>
+          <div style={{ fontSize: 14, fontWeight: 600, marginTop: 10 }}>Included:</div>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, margin: "4px 0" }}>Unlimited premium open bar & lunch · Snorkel gear (masks, snorkels, fins) · Kayaks & third lungs · Sun nets · Rope swing</p>
+          <div style={{ fontSize: 14, fontWeight: 600, marginTop: 10 }}>What to bring:</div>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, margin: "4px 0" }}>Swimsuit & cover-up · Sandals · Sunscreen SPF 30+ · Hat · Sunglasses · Towels provided at hotel lobby before departure (must be returned after)</p>
+          <div style={{ fontSize: 14, fontWeight: 600, marginTop: 10 }}>Schedule:</div>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, margin: "4px 0" }}>8:30 AM — gather in lobby, collect towels, depart for Pelican Pier together · 9:00 AM — depart pier for 4-hour adventure · 12:00 PM — lunch onboard · 1:00 PM — return to Pelican Pier, walk back to Marriott</p>
+          <Expandable title="Confirmed attendees">
+            <p style={{ fontSize: 13, color: "#6B7280", lineHeight: 1.7, margin: 0 }}>{SCHOONER_ATTENDEES}</p>
+          </Expandable>
+        </Card>
+        <Card>
+          <Badge type="teal">Saturday, April 11</Badge>
+          <div style={{ fontSize: 17, fontWeight: 600, marginTop: 8 }}>Optional pickleball</div>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, marginTop: 6 }}>10:00 AM – 12:00 PM at Marriott Aruba Surf Club courts (right next door). Drop in whenever — casual and fun. Open to all attendees.</p>
+        </Card>
+      </>}
+
+      {section === "aruba" && <>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
+          <Metric label="Temperature" value="80–88°F" />
+          <Metric label="Water temp" value="~80°F" />
+          <Metric label="Rain" value="2–3 days" />
+          <Metric label="UV index" value="High" />
+        </div>
+        <Card>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>April weather</div>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, margin: 0 }}>One of the best months to visit. Warm and sunny with highs around 88°F (31°C) and lows around 78°F (26°C). Rainfall is minimal — just 2–3 brief showers all month. Aruba is one of the driest Caribbean islands, sitting outside the hurricane belt. Constant trade winds keep it comfortable. UV is very high — sunscreen essential, reapply every 2 hours.</p>
+        </Card>
+        <Card>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Good to know</div>
+          <div style={{ display: "grid", gap: 10, fontSize: 14, lineHeight: 1.6 }}>
+            {[
+              { l: "Languages", t: "Official: Dutch & Papiamento. English spoken fluently everywhere — zero barriers. Try \"Bon dia\" (good morning) and \"Danki\" (thank you)!" },
+              { l: "Currency", t: "Aruban florin, but US dollars accepted everywhere. Credit cards work widely." },
+              { l: "Time zone", t: "AST (UTC-4) — same as Eastern Daylight Time. No change for most East Coasters!" },
+              { l: "Cell phones", t: "Most US carriers (Verizon, AT&T, T-Mobile) work. Check international plan options before you leave. Download WhatsApp for local contacts." },
+              { l: "Tipping", t: "Most restaurants add 10–15% service charge. Check your bill — for exceptional service, 5–10% on top." },
+              { l: "Water", t: "Tap water is safe — Aruba desalinates and it's among the purest in the Caribbean." },
+              { l: "Power outlets", t: "Same as US (Type A/B, 120V). No adapter needed!" },
+              { l: "Location", t: "Southern Caribbean off Venezuela. ~10 miles / 15-min drive from airport to resort." },
+            ].map((item, i) => (
+              <div key={i} style={{ borderBottom: "1px solid #F0F1F3", paddingBottom: 8 }}>
+                <div style={{ fontWeight: 600, color: T, marginBottom: 2 }}>{item.l}</div>
+                <div style={{ color: "#374151" }}>{item.t}</div>
+              </div>
+            ))}
+          </div>
+        </Card>
+        <Card>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 10 }}>Free time ideas</div>
+          {FREE_TIME.map((f, i) => (
+            <div key={i} style={{ padding: "8px 0", borderTop: i ? "1px solid #F0F1F3" : "none" }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: T }}>{f.name}</div>
+              <div style={{ fontSize: 13, color: "#6B7280", marginTop: 2, lineHeight: 1.5 }}>{f.desc}</div>
+            </div>
+          ))}
+        </Card>
+        <Card>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Safety & practical tips</div>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, margin: 0 }}>Aruba is one of the safest Caribbean islands with a low crime rate. Standard precautions: don't leave valuables unattended on the beach, use the room safe, stick to populated areas at night. Palm Beach is the most tourist-friendly area.</p>
+          <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, marginTop: 8 }}>Sunscreen is essential — the sun is intense. Use reef-safe sunscreen to protect the marine ecosystem. Stay hydrated (the climate is dry). Google Maps works well on the island for navigation.</p>
+        </Card>
+      </>}
+
+      {section === "faq" && <Card>
+        <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>Frequently asked questions</div>
+        {FAQ.map((f, i) => (
+          <div key={i} style={{ paddingBottom: 14, marginBottom: 14, borderBottom: i < FAQ.length - 1 ? "1px solid #F0F1F3" : "none" }}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: "#1A1D23", marginBottom: 4 }}>{f.q}</div>
+            <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, margin: 0 }}>{f.a}</p>
+          </div>
+        ))}
+      </Card>}
+    </div>
+  );
+}
+
+function PackTab() {
+  const [checked, setChecked] = useState(() => {
+    const s = {};
+    Object.keys(CHECKLIST_DATA).forEach(cat => { CHECKLIST_DATA[cat].items.forEach((_, i) => { s[`${cat}-${i}`] = false; }); });
+    return s;
+  });
+  const toggle = (k) => setChecked(p => ({ ...p, [k]: !p[k] }));
+  const total = Object.keys(checked).length;
+  const done = Object.values(checked).filter(Boolean).length;
+  const pct = Math.round((done / total) * 100);
+
+  return (
+    <div style={{ padding: "20px 16px" }}>
+      <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Packing checklist</div>
+      <div style={{ fontSize: 13, color: "#9CA3AF", marginBottom: 14 }}>Tap items to check them off</div>
+      <div style={{ background: "#F7F8FA", borderRadius: 12, padding: "14px 16px", marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+          <span style={{ fontSize: 14, fontWeight: 600 }}>{done} of {total} packed</span>
+          <span style={{ fontSize: 14, fontWeight: 700, color: pct === 100 ? "#2E7D32" : T }}>{pct}%</span>
+        </div>
+        <div style={{ height: 6, borderRadius: 3, background: "#E0E3E8", overflow: "hidden" }}>
+          <div style={{ height: "100%", borderRadius: 3, background: pct === 100 ? "#2E7D32" : T, width: `${pct}%`, transition: "width 0.3s ease" }} />
+        </div>
+      </div>
+      {Object.entries(CHECKLIST_DATA).map(([catKey, cat]) => (
+        <Card key={catKey}>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 10 }}>{cat.title}</div>
+          {cat.items.map((item, i) => {
+            const key = `${catKey}-${i}`;
+            const isDone = checked[key];
+            return (
+              <div key={key} onClick={() => toggle(key)} style={{
+                display: "flex", alignItems: "center", gap: 12, padding: "12px 0",
+                borderTop: i ? "1px solid #F0F1F3" : "none", cursor: "pointer", WebkitTapHighlightColor: "transparent",
+              }}>
+                <div style={{
+                  width: 24, height: 24, borderRadius: 6, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s",
+                  background: isDone ? T : "white", border: isDone ? `2px solid ${T}` : "2px solid #D1D5DB",
+                }}>
+                  {isDone && <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7.5L5.5 10L11 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                </div>
+                <span style={{ fontSize: 15, color: isDone ? "#9CA3AF" : "#374151", textDecoration: isDone ? "line-through" : "none", transition: "all 0.15s" }}>{item}</span>
+              </div>
+            );
+          })}
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+const ROSTER = [
+  { name: "Kevin O'Brien", role: "CEO", team: "Leadership", guest: "Cristina O'Brien" },
+  { name: "Tom Powers", role: "SVP Revenue Operations", team: "Leadership", guest: "Amanda Powers" },
+  { name: "Jessi Marcoff", role: "Chief People Officer", team: "Leadership", guest: "Dennis Mitchell" },
+  { name: "Maureen Morris", role: "VP of F&E GUB", team: "F&E GUB", guest: "Kevin Fredrickson" },
+  { name: "Rich Plese", role: "Enterprise Account Manager", team: "F&E GUB", guest: "Gennifer Gilbert" },
+  { name: "Tim Fugger", role: "Enterprise Account Director, Strategic Accounts", team: "F&E GUB", guest: "Rebecca Fugger" },
+  { name: "John Prodan", role: "Senior Enterprise Account Director", team: "F&E GUB", guest: "Ashley DiMaggio Ruiz" },
+  { name: "Jason Stinnett", role: "Enterprise Account Director", team: "F&E GUB", guest: "Lisa Stinnett" },
+  { name: "Brad Whittle", role: "Sales Management", team: "F&E GUB", guest: "Thia Whittle" },
+  { name: "Mark McNamara", role: "VP of MM GUB", team: "MM GUB", guest: "—" },
+  { name: "Patty Melton", role: "Account Executive", team: "MM GUB", guest: "Tim Melton" },
+  { name: "Vince Pegurri", role: "Senior Account Executive", team: "MM GUB", guest: "Mariana Silva" },
+  { name: "Nick Photos", role: "Account Executive", team: "MM GUB", guest: "Katelynn Greatorex" },
+  { name: "Gretchen Schmitt", role: "Sr. SMB Account Executive", team: "MM GUB", guest: "Robert Schmitt" },
+  { name: "Matt Straw", role: "Senior Account Executive", team: "MM GUB", guest: "Violet Kiekbusch" },
+  { name: "Ray Walsh", role: "VP of Insurance", team: "Insurance", guest: "Lucia Walsh" },
+  { name: "Angela Abbott", role: "VP Insurance Alliances", team: "Insurance", guest: "Angela Straface" },
+  { name: "Kyle Barglind", role: "Account Executive", team: "Insurance", guest: "Emily Barglind" },
+  { name: "Amanda Eleuteri", role: "Senior Director, HR Business Partner", team: "Cross-Functional", guest: "Parker Hoy" },
+  { name: "Shaw Horton", role: "Corporate Counsel", team: "Cross-Functional", guest: "Kelly Chen" },
+  { name: "Katie Johnson", role: "Marketing", team: "Cross-Functional", guest: "Julia Svoboda" },
+  { name: "Brian McCormick", role: "Sales Engineering", team: "Cross-Functional", guest: "—" },
+  { name: "Chao Ren", role: "FP&A", team: "Cross-Functional", guest: "Joseph Bravoco" },
+  { name: "Michaela Meyer", role: "Senior Director, Events", team: "Cross-Functional", guest: "Michael Meyer" },
+  { name: "Ryan Quinn", role: "2025 Top SDR", team: "Cross-Functional", guest: "Olivia Scannell" },
+];
+
+const ARRIVALS = [
+  { date: "Tue, Apr 7", flights: [
+    { route: "JFK → AUA", airline: "American AA 3238", departs: "6:30 AM", arrives: "1:30 PM", stops: "1 stop (MIA)", passengers: ["Gretchen Schmitt", "Robert Schmitt"] },
+    { route: "DEN → AUA", airline: "Delta DL 302", departs: "12:55 AM", arrives: "11:55 AM", stops: "1 stop (ATL)", passengers: ["Matt Straw", "Violet Kiekbusch"] },
+  ]},
+  { date: "Tue, Apr 7 → Wed, Apr 8 (overnight)", flights: [
+    { route: "SMF → AUA", airline: "Delta DL 743", departs: "10:35 PM", arrives: "11:55 AM+1", stops: "1 stop (ATL)", passengers: ["Tim Melton", "Patricia Melton"] },
+    { route: "LAX → AUA", airline: "Delta DL 320", departs: "11:55 PM", arrives: "11:55 AM+1", stops: "1 stop (ATL)", passengers: ["Julia Svoboda"] },
+    { route: "LAX → AUA", airline: "American AA 2777", departs: "11:59 PM", arrives: "1:30 PM+1", stops: "1 stop (MIA)", passengers: ["Shaw Horton", "Kelly Chen"] },
+    { route: "DEN → AUA", airline: "United UA 1745", departs: "11:59 PM", arrives: "2:00 PM+1", stops: "1 stop (EWR)", passengers: ["Katie Johnson"] },
+  ]},
+  { date: "Wed, Apr 8", flights: [
+    { route: "BOS → AUA", airline: "Delta DL 1762", departs: "6:16 AM", arrives: "11:10 AM", stops: "Non-stop", passengers: ["Ryan Quinn", "Olivia Scannell", "Dennis Mitchell", "Jessi Marcoff", "Amanda Eleuteri", "Parker Hoy", "Chao Ren", "Joseph Bravoco", "Kevin O'Brien", "Cristina O'Brien", "Lucia O'Brien", "Jake O'Brien", "Cecily O'Brien", "Carolina O'Brien"] },
+    { route: "BOS → AUA", airline: "JetBlue B6 473", departs: "6:30 AM", arrives: "11:10 AM", stops: "Non-stop", passengers: ["Vince Pegurri", "Mariana Silva", "Mark McNamara", "Maureen Morris", "Kevin Fredrickson", "Tom Powers", "Amanda Powers", "Michaela Meyer", "Michael Meyer"] },
+    { route: "DFW → AUA", airline: "American AA 3189", departs: "5:00 AM", arrives: "1:30 PM", stops: "1 stop (MIA)", passengers: ["Angela Abbott", "Angela Straface"] },
+    { route: "ATW → AUA", airline: "United UA 4644", departs: "6:15 AM", arrives: "3:20 PM", stops: "1 stop (ORD)", passengers: ["Kyle Barglind", "Emily Barglind"] },
+    { route: "BDL → AUA", airline: "United UA 635", departs: "6:00 AM", arrives: "12:40 PM", stops: "1 stop (IAD)", passengers: ["Ray Walsh", "Lucia Walsh"] },
+    { route: "MIA → AUA", airline: "American AA 1028", departs: "10:30 AM", arrives: "1:30 PM", stops: "Non-stop", passengers: ["John Prodan", "Ashley DiMaggio Ruiz"] },
+    { route: "MYR → AUA", airline: "American AA 3174", departs: "9:14 AM", arrives: "3:20 PM", stops: "1 stop (CLT)", passengers: ["Nick Photos", "Katelynn Greatorex"] },
+    { route: "DFW → AUA", airline: "American AA 3290", departs: "7:00 AM", arrives: "4:25 PM", stops: "1 stop (MIA)", passengers: ["Brian McCormick"] },
+    { route: "TPA → AUA", airline: "American AA 3030", departs: "10:18 AM", arrives: "4:25 PM", stops: "1 stop (MIA)", passengers: ["Rich Plese", "Gennifer Gilbert"] },
+    { route: "JAX → AUA", airline: "American AA 2211", departs: "11:00 AM", arrives: "4:25 PM", stops: "1 stop (MIA)", passengers: ["Tim Fugger", "Rebecca Fugger"] },
+    { route: "XNA → AUA", airline: "American AA 4023", departs: "6:25 AM", arrives: "4:25 PM", stops: "1 stop (MIA)", passengers: ["Jason Stinnett", "Lisa Stinnett"] },
+    { route: "ATL → AUA", airline: "Delta DL 582", departs: "10:25 AM", arrives: "2:20 PM", stops: "Non-stop", passengers: ["Brad Whittle", "Thia Whittle"] },
+  ]},
+];
+
+const DEPARTURES = [
+  { date: "Sat, Apr 11 (early departures)", flights: [
+    { route: "AUA → BOS", airline: "Delta DL 1761", departs: "12:25 PM", arrives: "5:25 PM", stops: "Non-stop", pickup: "~9:30 AM", passengers: ["Dennis Mitchell", "Cristina O'Brien", "Lucia O'Brien", "Jake O'Brien", "Cecily O'Brien", "Carolina O'Brien"] },
+    { route: "AUA → LAX", airline: "Delta DL 581", departs: "3:35 PM", arrives: "11:55 PM", stops: "1 stop (ATL)", pickup: "~12:30 PM", passengers: ["Julia Svoboda"] },
+  ]},
+  { date: "Sun, Apr 12 (main departure day)", flights: [
+    { route: "AUA → DEN", airline: "United UA 1032", departs: "12:10 PM", arrives: "10:15 PM", stops: "1 stop (EWR)", pickup: "~9:10 AM", passengers: ["John Prodan", "Ashley DiMaggio Ruiz"] },
+    { route: "AUA → BOS", airline: "Delta DL 1761", departs: "12:25 PM", arrives: "5:25 PM", stops: "Non-stop", pickup: "~9:25 AM", passengers: ["Ryan Quinn", "Olivia Scannell", "Jessi Marcoff", "Amanda Eleuteri", "Parker Hoy", "Chao Ren", "Joseph Bravoco", "Tom Powers", "Amanda Powers", "Kevin O'Brien"] },
+    { route: "AUA → DEN", airline: "Delta DL 1752", departs: "12:45 PM", arrives: "8:20 PM", stops: "1 stop (ATL)", pickup: "~9:45 AM", passengers: ["Brad Whittle", "Thia Whittle"] },
+    { route: "AUA → SMF", airline: "Delta DL 1752", departs: "12:45 PM", arrives: "10:30 PM", stops: "1 stop (ATL)", pickup: "~9:45 AM", passengers: ["Tim Melton", "Patricia Melton"] },
+    { route: "AUA → JFK", airline: "American AA 874", departs: "1:20 PM", arrives: "10:16 PM", stops: "1 stop (CLT)", pickup: "~10:20 AM", passengers: ["Gretchen Schmitt", "Robert Schmitt"] },
+    { route: "AUA → ATW", airline: "United UA 1650", departs: "1:50 PM", arrives: "9:45 PM", stops: "1 stop (ORD)", pickup: "~10:50 AM", passengers: ["Kyle Barglind", "Emily Barglind"] },
+    { route: "AUA → TPA", airline: "American AA 1028", departs: "2:30 PM", arrives: "10:00 PM", stops: "1 stop (MIA)", pickup: "~11:30 AM", passengers: ["Rich Plese", "Gennifer Gilbert"] },
+    { route: "AUA → DFW", airline: "American AA 1028", departs: "2:30 PM", arrives: "9:18 PM", stops: "1 stop (MIA)", pickup: "~11:30 AM", passengers: ["Brian McCormick"] },
+    { route: "AUA → LAX", airline: "American AA 1028", departs: "2:30 PM", arrives: "10:36 PM", stops: "1 stop (MIA)", pickup: "~11:30 AM", passengers: ["Shaw Horton", "Kelly Chen"] },
+    { route: "AUA → XNA", airline: "American AA 1028", departs: "2:30 PM", arrives: "11:24 PM", stops: "1 stop (MIA)", pickup: "~11:30 AM", passengers: ["Jason Stinnett", "Lisa Stinnett"] },
+    { route: "AUA → DEN", airline: "Southwest WN 1641", departs: "2:35 PM", arrives: "9:55 PM", stops: "1 stop (MCO)", pickup: "~11:35 AM", passengers: ["Matt Straw", "Violet Kiekbusch"] },
+    { route: "AUA → BDL", airline: "United UA 1648", departs: "4:30 PM", arrives: "11:59 PM", stops: "1 stop (IAD)", pickup: "~1:30 PM", passengers: ["Ray Walsh", "Lucia Walsh"] },
+    { route: "AUA → DEN", airline: "United UA 1648", departs: "4:30 PM", arrives: "12:44 AM+1", stops: "1 stop (IAD)", pickup: "~1:30 PM", passengers: ["Katie Johnson"] },
+    { route: "AUA → MYR", airline: "American AA 1346", departs: "5:10 PM", arrives: "11:57 PM", stops: "1 stop (CLT)", pickup: "~2:10 PM", passengers: ["Nick Photos", "Katelynn Greatorex"] },
+    { route: "AUA → BOS", airline: "JetBlue B6 74", departs: "5:15 PM", arrives: "10:10 PM", stops: "Non-stop", pickup: "~2:15 PM", passengers: ["Vince Pegurri", "Mariana Silva", "Mark McNamara", "Michaela Meyer", "Michael Meyer"] },
+    { route: "AUA → DFW", airline: "American AA 3300", departs: "5:25 PM", arrives: "11:59 PM", stops: "1 stop (MIA)", pickup: "~2:25 PM", passengers: ["Angela Abbott", "Angela Straface"] },
+    { route: "AUA → JAX", airline: "American AA 3300", departs: "5:25 PM", arrives: "11:59 PM", stops: "1 stop (MIA)", pickup: "~2:25 PM", passengers: ["Tim Fugger", "Rebecca Fugger"] },
+  ]},
+  { date: "Mon, Apr 13 (late departures)", flights: [
+    { route: "AUA → TPA", airline: "American AA 1028", departs: "2:30 PM", arrives: "10:00 PM", stops: "1 stop (MIA)", pickup: "~11:30 AM", passengers: ["Maureen Morris", "Kevin Fredrickson"] },
+  ]},
+];
+
+function FlightsTab() {
+  const [view, setView] = useState("arrivals");
+  const [search, setSearch] = useState("");
+  const q = search.toLowerCase();
+  const data = view === "arrivals" ? ARRIVALS : DEPARTURES;
+
+  const filteredData = data.map(dayGroup => ({
+    ...dayGroup,
+    flights: dayGroup.flights.filter(f => !q || f.passengers.some(p => p.toLowerCase().includes(q)))
+  })).filter(dayGroup => dayGroup.flights.length > 0);
+
+  return (
+    <div style={{ padding: "20px 16px" }}>
+      <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Flight manifest</div>
+      <div style={{ fontSize: 13, color: "#9CA3AF", marginBottom: 14 }}>See who's on your flight and transport groupings</div>
+      <PillNav items={[{ key: "arrivals", label: "Arrivals" }, { key: "departures", label: "Departures" }]} active={view} onSelect={(v) => { setView(v); setSearch(""); }} />
+      <input type="text" placeholder="Search your name..." value={search} onChange={e => setSearch(e.target.value)}
+        style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: "1.5px solid #E0E3E8", fontSize: 16, marginBottom: 16, background: "white", boxSizing: "border-box", outline: "none" }} />
+      {view === "departures" && <Alert type="info">Pickup times are estimated at 3 hours before departure. Final times will be confirmed via email and #2026-pclub Slack.</Alert>}
+      {filteredData.length === 0 && <div style={{ textAlign: "center", padding: "40px 20px", color: "#9CA3AF", fontSize: 14 }}>No flights found for "{search}"</div>}
+      {filteredData.map((dayGroup, di) => (
+        <div key={di} style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 15, fontWeight: 600, color: T, marginBottom: 10, padding: "8px 0", borderBottom: `2px solid ${T}22` }}>{dayGroup.date}</div>
+          {dayGroup.flights.map((f, fi) => (
+            <Card key={fi} style={q && f.passengers.some(p => p.toLowerCase().includes(q)) ? { border: `2px solid ${T}`, boxShadow: `0 0 0 3px ${T}22` } : {}}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 6 }}>
+                <div style={{ fontSize: 16, fontWeight: 600 }}>{f.route}</div>
+                <Badge type={f.stops === "Non-stop" ? "success" : "teal"}>{f.stops}</Badge>
+              </div>
+              <div style={{ fontSize: 13, color: "#6B7280", marginBottom: 2 }}>{f.airline}</div>
+              <div style={{ display: "flex", gap: 16, fontSize: 14, margin: "8px 0" }}>
+                <div><span style={{ color: "#9CA3AF", fontSize: 12 }}>Departs </span><span style={{ fontWeight: 600 }}>{f.departs}</span></div>
+                <div><span style={{ color: "#9CA3AF", fontSize: 12 }}>Arrives </span><span style={{ fontWeight: 600 }}>{f.arrives}</span></div>
+              </div>
+              {f.pickup && <div style={{ fontSize: 13, fontWeight: 600, color: "#E65100", background: "#FFF3E0", display: "inline-block", padding: "3px 10px", borderRadius: 6, marginBottom: 8 }}>Hotel pickup {f.pickup}</div>}
+              <div style={{ borderTop: "1px solid #F0F1F3", paddingTop: 8, marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: "#9CA3AF", marginBottom: 4 }}>{f.passengers.length} traveler{f.passengers.length !== 1 ? "s" : ""}</div>
+                <div style={{ fontSize: 14, lineHeight: 1.7 }}>
+                  {f.passengers.map((p, pi) => (
+                    <span key={pi}>
+                      <span style={q && p.toLowerCase().includes(q) ? { background: "#FFF176", padding: "1px 4px", borderRadius: 4, fontWeight: 600 } : {}}>{p}</span>
+                      {pi < f.passengers.length - 1 && <span style={{ color: "#D1D5DB" }}> · </span>}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function RosterTab() {
+  const [search, setSearch] = useState("");
+  const q = search.toLowerCase();
+  const teamOrder = ["F&E GUB", "MM GUB", "Insurance", "Cross-Functional", "Leadership"];
+  const filteredRoster = ROSTER.filter(r => !q || r.name.toLowerCase().includes(q) || r.guest.toLowerCase().includes(q) || r.role.toLowerCase().includes(q) || r.team.toLowerCase().includes(q));
+
+  return (
+    <div style={{ padding: "20px 16px" }}>
+      <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Who's going</div>
+      <div style={{ fontSize: 13, color: "#9CA3AF", marginBottom: 14 }}>The full President's Club roster by segment</div>
+      <input type="text" placeholder="Search by name, role, or team..." value={search} onChange={e => setSearch(e.target.value)}
+        style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: "1.5px solid #E0E3E8", fontSize: 16, marginBottom: 16, background: "white", boxSizing: "border-box", outline: "none" }} />
+      <div style={{ fontSize: 13, color: "#9CA3AF", marginBottom: 12 }}>{filteredRoster.length} attendee{filteredRoster.length !== 1 ? "s" : ""}</div>
+      {teamOrder.map(team => {
+        const members = filteredRoster.filter(r => r.team === team);
+        if (members.length === 0) return null;
+        return (
+          <div key={team} style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: T, marginBottom: 10, padding: "8px 0", borderBottom: `2px solid ${T}22` }}>{team}</div>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "0 0 6px", marginBottom: 4 }}>
+              <div style={{ fontSize: 11, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: 0.5, flex: 1, paddingLeft: 52 }}>Attendee</div>
+              <div style={{ fontSize: 11, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: 0.5, flexShrink: 0, textAlign: "right" }}>Guest</div>
+            </div>
+            {members.map((r, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 0", borderTop: i ? "1px solid #F0F1F3" : "1px solid #F0F1F3" }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: TL, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 600, color: T, flexShrink: 0 }}>
+                  {r.name.split(" ").map(w => w[0]).join("")}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 14, fontWeight: 500 }}>
+                    <span style={q && r.name.toLowerCase().includes(q) ? { background: "#FFF176", padding: "1px 4px", borderRadius: 4 } : {}}>{r.name}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#6B7280" }}>{r.role}</div>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0, maxWidth: "40%" }}>
+                  {r.guest !== "—" ? (
+                    <div style={{ fontSize: 13, color: "#374151" }}>
+                      <span style={q && r.guest.toLowerCase().includes(q) ? { background: "#FFF176", padding: "1px 4px", borderRadius: 4 } : {}}>{r.guest}</span>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 12, color: "#D1D5DB" }}>—</div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function useIsWide() {
+  const [wide, setWide] = useState(typeof window !== 'undefined' && window.innerWidth >= 768);
+  React.useEffect(() => {
+    const handler = () => setWide(window.innerWidth >= 768);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+  return wide;
+}
+
+function App() {
+  const [tab, setTab] = useState("home");
+  const wide = useIsWide();
+  const R = { home: HomeTab, schedule: ScheduleTab, dining: DiningTab, info: InfoTab, pack: PackTab, flights: FlightsTab, roster: RosterTab }[tab] || HomeTab;
+
+  if (wide) {
+    return (
+      <div style={{ display: "flex", minHeight: "100vh", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", background: "#F0F1F3" }}>
+        <div style={{ width: 220, background: "white", borderRight: "1px solid #E0E3E8", padding: "24px 0", position: "fixed", top: 0, left: 0, bottom: 0, display: "flex", flexDirection: "column", zIndex: 100 }}>
+          <div style={{ padding: "0 20px 20px", borderBottom: "1px solid #F0F1F3", marginBottom: 8 }}>
+            <div style={{ fontSize: 11, color: T, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>InvoiceCloud</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#1A1D23", marginTop: 2 }}>P Club 2026</div>
+            <div style={{ fontSize: 12, color: "#9CA3AF", marginTop: 2 }}>Aruba · Apr 8–12</div>
+          </div>
+          {TABS.map(t => (
+            <button key={t.id} onClick={() => { setTab(t.id); window.scrollTo(0, 0); }} style={{
+              display: "flex", alignItems: "center", gap: 10, border: "none", background: tab === t.id ? TL : "transparent",
+              cursor: "pointer", padding: "12px 20px", fontSize: 14, fontWeight: tab === t.id ? 600 : 400,
+              color: tab === t.id ? T : "#6B7280", transition: "all 0.15s", textAlign: "left", width: "100%",
+              borderRight: tab === t.id ? `3px solid ${T}` : "3px solid transparent",
+            }}>
+              <span style={{ fontSize: 18 }}>{t.icon}</span>
+              <span>{t.label}</span>
+            </button>
+          ))}
+        </div>
+        <div style={{ marginLeft: 220, flex: 1, maxWidth: 720, padding: "0 24px" }}>
+          <R />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ maxWidth: 480, margin: "0 auto", background: "#F7F8FA", minHeight: "100vh", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", position: "relative", paddingBottom: 80 }}>
+      <R />
+      <div style={{
+        position: "fixed", bottom: 0, left: 0, right: 0, background: "white", borderTop: "1px solid #E0E3E8",
+        display: "flex", justifyContent: "space-around", padding: "8px 0 env(safe-area-inset-bottom, 8px)",
+        zIndex: 100, maxWidth: 480, margin: "0 auto",
+      }}>
+        {TABS.map(t => (
+          <button key={t.id} onClick={() => { setTab(t.id); window.scrollTo(0, 0); }} style={{
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 2, border: "none", background: "none", cursor: "pointer", padding: "4px 12px", minWidth: 56,
+            color: tab === t.id ? T : "#9CA3AF", transition: "color 0.15s",
+          }}>
+            <span style={{ fontSize: 20 }}>{t.icon}</span>
+            <span style={{ fontSize: 11, fontWeight: tab === t.id ? 600 : 400 }}>{t.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>
